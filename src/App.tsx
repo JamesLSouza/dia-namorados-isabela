@@ -56,7 +56,7 @@ function App() {
           <div className="flex flex-wrap justify-center gap-4 text-sm md:text-base text-rose-600 font-medium">
             <div className="flex items-center gap-2 bg-white/50 px-4 py-2 rounded-full">
               <Calendar size={18} />
-              <span>01/12/2025</span>
+              <span>01/12/2024</span>
             </div>
             <div className="flex items-center gap-2 bg-white/50 px-4 py-2 rounded-full">
               <Gift size={18} />
