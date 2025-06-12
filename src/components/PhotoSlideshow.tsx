@@ -1,36 +1,29 @@
 import React, { useState, useEffect } from 'react';
 import { ChevronLeft, ChevronRight } from 'lucide-react';
 
-const PhotoSlideshow: React.FC = () => {
-  // Using beautiful couple photos from Pexels
-  const photos = [
-    {
-      url: 'https://images.pexels.com/photos/1024960/pexels-photo-1024960.jpeg?auto=compress&cs=tinysrgb&w=800',
-      caption: 'Nossos momentos especiais'
-    },
-    {
-      url: 'https://images.pexels.com/photos/1024993/pexels-photo-1024993.jpeg?auto=compress&cs=tinysrgb&w=800',
-      caption: 'Cada dia ao seu lado é único'
-    },
-    {
-      url: 'https://images.pexels.com/photos/1024991/pexels-photo-1024991.jpeg?auto=compress&cs=tinysrgb&w=800',
-      caption: 'Você é minha felicidade'
-    },
-    {
-      url: 'https://images.pexels.com/photos/1024990/pexels-photo-1024990.jpeg?auto=compress&cs=tinysrgb&w=800',
-      caption: 'Juntos para sempre'
-    },
-    {
-      url: 'https://images.pexels.com/photos/1034662/pexels-photo-1034662.jpeg?auto=compress&cs=tinysrgb&w=800',
-      caption: 'Meu amor por você é infinito'
-    }
-  ];
+// Função para carregar dinamicamente as fotos da pasta public/photos
+function loadSlideshowImages() {
+  const images = import.meta.glob('/public/photos/*.{jpg,jpeg,png,webp}', {
+    eager: true,
+    query: { url: true },
+    import: 'default'
+  });
 
+  return Object.values(images).map((image: any) => ({
+    url: typeof image === 'string' 
+      ? image.replace('/public', '') 
+      : image.default.replace('/public', ''),
+    caption: '' // Caption padrão ou você pode adicionar títulos específicos
+  }));
+}
+
+const PhotoSlideshow: React.FC = () => {
+  const photos = loadSlideshowImages();
   const [currentIndex, setCurrentIndex] = useState(0);
   const [isAutoPlaying, setIsAutoPlaying] = useState(true);
 
   useEffect(() => {
-    if (!isAutoPlaying) return;
+    if (!isAutoPlaying || photos.length === 0) return;
 
     const interval = setInterval(() => {
       setCurrentIndex((prevIndex) => (prevIndex + 1) % photos.length);
@@ -52,6 +45,14 @@ const PhotoSlideshow: React.FC = () => {
   const handleMouseEnter = () => setIsAutoPlaying(false);
   const handleMouseLeave = () => setIsAutoPlaying(true);
 
+  if (photos.length === 0) {
+    return (
+      <div className="w-full h-96 md:h-[500px] flex items-center justify-center bg-gray-100 rounded-2xl">
+        <p className="text-gray-500">Nenhuma foto encontrada na pasta /public/photos</p>
+      </div>
+    );
+  }
+
   return (
     <div 
       className="relative w-full h-96 md:h-[500px] rounded-2xl overflow-hidden shadow-2xl group"
@@ -70,6 +71,10 @@ const PhotoSlideshow: React.FC = () => {
             src={photo.url}
             alt={photo.caption}
             className="w-full h-full object-cover transform transition-transform duration-7000 hover:scale-105"
+            onError={(e) => {
+              // Fallback simples em caso de erro
+              (e.target as HTMLImageElement).src = '/placeholder.jpg';
+            }}
           />
           <div className="absolute inset-0 bg-gradient-to-t from-black/40 via-transparent to-transparent" />
           <div className="absolute bottom-4 left-4 right-4">

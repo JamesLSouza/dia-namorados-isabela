@@ -1,28 +1,43 @@
 import React, { useState } from 'react';
 import { X, Heart, ChevronLeft, ChevronRight } from 'lucide-react';
 
-const TOTAL_PHOTOS = 12;
+// Função para carregar dinamicamente as fotos da pasta public/photos
+function loadGalleryImages() {
+  const images = import.meta.glob('/public/photos/*.{jpg,jpeg,png,webp}', { 
+    eager: true,
+    query: { url: true },
+    import: 'default'
+  });
 
-const generatePhotoPaths = (total: number): string[] =>
-  Array.from({ length: total }, (_, i) => `/photos/foto${i + 1}.jpg`);
-
-const fallbackPhotos = Array.from({ length: TOTAL_PHOTOS }, (_, i) =>
-  `https://images.pexels.com/photos/10249${80 + i}/pexels-photo-10249${80 + i}.jpeg?auto=compress&cs=tinysrgb&w=400`
-);
+  return Object.values(images).map((image: any) => 
+    typeof image === 'string' 
+      ? image.replace('/public', '') 
+      : image.default.replace('/public', '')
+  );
+}
 
 const CouplePhotosGallery: React.FC = () => {
-  const couplePhotos = generatePhotoPaths(TOTAL_PHOTOS);
+  const couplePhotos = loadGalleryImages();
   const [selectedPhoto, setSelectedPhoto] = useState<number | null>(null);
 
-  const openModal = (index: number) => setSelectedPhoto(index);
-  const closeModal = () => setSelectedPhoto(null);
-  const goToPrevious = () => {
-    if (selectedPhoto !== null)
-      setSelectedPhoto((selectedPhoto - 1 + couplePhotos.length) % couplePhotos.length);
+  const openModal = (index: number) => {
+    setSelectedPhoto(index);
   };
+
+  const closeModal = () => {
+    setSelectedPhoto(null);
+  };
+
+  const goToPrevious = () => {
+    if (selectedPhoto !== null) {
+      setSelectedPhoto(selectedPhoto === 0 ? couplePhotos.length - 1 : selectedPhoto - 1);
+    }
+  };
+
   const goToNext = () => {
-    if (selectedPhoto !== null)
-      setSelectedPhoto((selectedPhoto + 1) % couplePhotos.length);
+    if (selectedPhoto !== null) {
+      setSelectedPhoto(selectedPhoto === couplePhotos.length - 1 ? 0 : selectedPhoto + 1);
+    }
   };
 
   const handleKeyDown = (e: React.KeyboardEvent) => {
@@ -48,7 +63,8 @@ const CouplePhotosGallery: React.FC = () => {
                 alt={`Foto do casal ${index + 1}`}
                 className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
                 onError={(e) => {
-                  (e.target as HTMLImageElement).src = fallbackPhotos[index % fallbackPhotos.length];
+                  // Fallback simples em caso de erro
+                  (e.target as HTMLImageElement).src = '/placeholder.jpg';
                 }}
               />
               <div className="absolute inset-0 bg-gradient-to-t from-black/30 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
@@ -60,6 +76,7 @@ const CouplePhotosGallery: React.FC = () => {
         ))}
       </div>
 
+      {/* Modal para visualizar foto em tamanho grande */}
       {selectedPhoto !== null && (
         <div
           className="fixed inset-0 bg-black/90 backdrop-blur-sm z-50 flex items-center justify-center p-4"
@@ -72,12 +89,9 @@ const CouplePhotosGallery: React.FC = () => {
               src={couplePhotos[selectedPhoto]}
               alt={`Foto do casal ${selectedPhoto + 1}`}
               className="max-w-full max-h-full object-contain rounded-lg shadow-2xl"
-              onError={(e) => {
-                (e.target as HTMLImageElement).src =
-                  fallbackPhotos[selectedPhoto % fallbackPhotos.length].replace('w=400', 'w=800');
-              }}
             />
-
+            
+            {/* Botão fechar */}
             <button
               onClick={closeModal}
               className="absolute top-4 right-4 bg-white/20 backdrop-blur-sm hover:bg-white/30 text-white p-2 rounded-full transition-all duration-300"
@@ -85,13 +99,13 @@ const CouplePhotosGallery: React.FC = () => {
               <X size={24} />
             </button>
 
+            {/* Navegação */}
             <button
               onClick={goToPrevious}
               className="absolute left-4 top-1/2 transform -translate-y-1/2 bg-white/20 backdrop-blur-sm hover:bg-white/30 text-white p-3 rounded-full transition-all duration-300"
             >
               <ChevronLeft size={24} />
             </button>
-
             <button
               onClick={goToNext}
               className="absolute right-4 top-1/2 transform -translate-y-1/2 bg-white/20 backdrop-blur-sm hover:bg-white/30 text-white p-3 rounded-full transition-all duration-300"
@@ -99,6 +113,7 @@ const CouplePhotosGallery: React.FC = () => {
               <ChevronRight size={24} />
             </button>
 
+            {/* Contador de fotos */}
             <div className="absolute bottom-4 left-1/2 transform -translate-x-1/2 bg-white/20 backdrop-blur-sm text-white px-4 py-2 rounded-full">
               {selectedPhoto + 1} de {couplePhotos.length}
             </div>
