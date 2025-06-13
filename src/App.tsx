@@ -40,7 +40,7 @@ function App() {
           
           <h1 className="text-4xl md:text-6xl lg:text-7xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-rose-600 via-pink-600 to-rose-700 mb-6 font-['Dancing_Script']">
             Feliz Dia dos Namorados, 
-            <span className="block text-rose-500">Isabela!</span>
+            <span className="block text-rose-500">Isabella!</span>
           </h1>
           
           <div className="relative p-8 bg-white/30 backdrop-blur-md rounded-3xl shadow-2xl border border-white/40 mb-8" data-aos="zoom-in" data-aos-delay="300">
@@ -168,7 +168,7 @@ function App() {
         <div className="max-w-4xl mx-auto text-center">
           <Heart size={32} className="text-pink-200 mx-auto mb-4 animate-pulse" fill="currentColor" />
           <p className="text-pink-100 text-lg font-['Dancing_Script']">
-            Feito com muito amor para Isabela ❤️
+            Feito com muito amor para Isabella ❤️
           </p>
           <p className="text-pink-200 text-sm mt-2">
             Feliz Dia dos Namorados, meu amor!
